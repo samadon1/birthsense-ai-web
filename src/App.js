@@ -763,8 +763,7 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b bg-white dark:bg-gray-800 shadow-sm dark:border-gray-700">
-            <div className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-2 rounded-lg">
+            <div c              <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-2 rounded-lg">
                 {/* <Stethoscope className="h-5 w-5" /> */}
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
