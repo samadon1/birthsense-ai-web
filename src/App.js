@@ -16,7 +16,6 @@ import {
   LogOut,
   Brain,
   Zap,
-  Sparkles,
   Maximize2,
   Layers,
   AlertCircle,
@@ -339,12 +338,12 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
       timestamp: new Date().toISOString(),
       references:
         question.toLowerCase().includes("missing") ||
-          question.toLowerCase().includes("abnormal") ||
-          question.toLowerCase().includes("gestational age")
+        question.toLowerCase().includes("abnormal") ||
+        question.toLowerCase().includes("gestational age")
           ? [
-            "ISUOG Practice Guidelines: performance of first-trimester fetal ultrasound scan",
-            "Fetal Medicine Foundation: The 11-13 weeks scan",
-          ]
+              "ISUOG Practice Guidelines: performance of first-trimester fetal ultrasound scan",
+              "Fetal Medicine Foundation: The 11-13 weeks scan",
+            ]
           : null,
     }
 
@@ -481,7 +480,13 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light")
+    document.documentElement.classList.toggle("dark", theme !== "light")
   }
+
+  // Apply theme class on initial render
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark")
+  }, [])
 
   const handleSelectImageFromBrowser = (imageUrl, isMri) => {
     if (isMri) {
@@ -506,20 +511,25 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
     return (
       <div className={`flex w-full ${isUser ? "justify-end" : "justify-start"} ${isSystem && "justify-center"}`}>
         <div
-          className={`rounded-lg p-4 max-w-[80%] shadow-sm ${isUser
+          className={`rounded-lg p-4 max-w-[80%] shadow-sm ${
+            isUser
               ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
               : isSystem
-                ? "bg-gray-100 text-gray-600 text-center text-sm"
-                : "bg-white border border-gray-200 text-gray-800"
-            } ${message.image && "max-w-md"} transition-all duration-300 hover:shadow-md`}
+                ? "bg-gray-100 text-gray-600 text-center text-sm dark:bg-gray-700 dark:text-gray-300"
+                : "bg-white border border-gray-200 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+          } ${message.image && "max-w-md"} transition-all duration-300 hover:shadow-md`}
         >
           <div className="flex justify-between items-start">
             <div className="flex items-center mb-1">
               {!isSystem && (
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${isUser ? "bg-blue-700" : "bg-blue-100"}`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${isUser ? "bg-blue-700" : "bg-blue-100 dark:bg-blue-900"}`}
                 >
-                  {isUser ? <User className="h-3 w-3 text-white" /> : <Stethoscope className="h-3 w-3 text-blue-700" />}
+                  {isUser ? (
+                    <User className="h-3 w-3 text-white" />
+                  ) : (
+                    <Stethoscope className="h-3 w-3 text-blue-700 dark:text-blue-400" />
+                  )}
                 </div>
               )}
               <span className="text-xs opacity-70">{message.timestamp && formatTimestamp(message.timestamp)}</span>
@@ -529,20 +539,20 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               message.recommendations ||
               message.references ||
               message.volumetrics) && (
-                <button
-                  onClick={() => setExpanded(!expanded)}
-                  className="text-xs opacity-70 hover:opacity-100 transition-opacity"
-                >
-                  {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </button>
-              )}
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-xs opacity-70 hover:opacity-100 transition-opacity"
+              >
+                {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+            )}
           </div>
 
           {message.content && <p className="whitespace-pre-wrap">{message.content}</p>}
 
           {message.image && (
             <div
-              className="mt-3 relative rounded-md overflow-hidden border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+              className="mt-3 relative rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleImageClick}
             >
               <img
@@ -561,7 +571,11 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
             <div>
               {message.isStandard !== undefined && (
                 <div
-                  className={`mt-3 p-3 rounded-md ${message.isStandard ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}
+                  className={`mt-3 p-3 rounded-md ${
+                    message.isStandard
+                      ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900"
+                      : "bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900"
+                  }`}
                 >
                   <div className="font-semibold flex items-center">
                     {message.isStandard ? (
@@ -579,7 +593,7 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                   <div className="text-sm mt-1">
                     <div className="flex items-center">
                       <span>Quality Score:</span>
-                      <div className="ml-2 w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="ml-2 w-24 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                         <div
                           className={`h-full ${message.isStandard ? "bg-green-500" : "bg-red-500"}`}
                           style={{ width: `${message.qualityScore}%` }}
@@ -594,14 +608,14 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               {message.detectionResults && (
                 <div className="mt-3 space-y-2">
                   <h4 className="font-medium text-sm flex items-center">
-                    <Layers className="h-4 w-4 mr-1 text-blue-600" />
+                    <Layers className="h-4 w-4 mr-1 text-blue-600 dark:text-blue-400" />
                     <span>Detected Structures:</span>
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {message.detectionResults.map((result, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+                        className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
                       >
                         {result.label}
                         <span className="ml-1 text-xs opacity-80">{result.confidence.toFixed(2)}</span>
@@ -612,12 +626,12 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               )}
 
               {message.recommendations && (
-                <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-100">
-                  <h4 className="font-medium text-sm text-blue-800 mb-1 flex items-center">
-                    <Lightbulb className="h-4 w-4 mr-1 text-blue-700" />
+                <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-100 dark:bg-blue-900/20 dark:border-blue-900">
+                  <h4 className="font-medium text-sm text-blue-800 dark:text-blue-300 mb-1 flex items-center">
+                    <Lightbulb className="h-4 w-4 mr-1 text-blue-700 dark:text-blue-400" />
                     <span>Recommendations:</span>
                   </h4>
-                  <ul className="list-disc pl-5 text-xs text-blue-700 space-y-1">
+                  <ul className="list-disc pl-5 text-xs text-blue-700 dark:text-blue-300 space-y-1">
                     {message.recommendations.map((rec, index) => (
                       <li key={index}>{rec}</li>
                     ))}
@@ -628,12 +642,15 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               {message.segmentationResults && (
                 <div className="mt-3 space-y-2">
                   <h4 className="font-medium text-sm flex items-center">
-                    <Microscope className="h-4 w-4 mr-1 text-purple-600" />
+                    <Microscope className="h-4 w-4 mr-1 text-purple-600 dark:text-purple-400" />
                     <span>Segmentation Legend:</span>
                   </h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {message.segmentationResults.map((result, index) => (
-                      <div key={index} className="flex items-center gap-1.5 p-1 rounded hover:bg-gray-50">
+                      <div
+                        key={index}
+                        className="flex items-center gap-1.5 p-1 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
                         <div className={`w-3 h-3 rounded-full ${result.colorClass}`}></div>
                         <span>{result.label}</span>
                       </div>
@@ -643,12 +660,12 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               )}
 
               {message.volumetrics && (
-                <div className="mt-3 p-3 bg-purple-50 rounded-md border border-purple-100">
-                  <h4 className="font-medium text-sm text-purple-800 mb-1 flex items-center">
-                    <Brain className="h-4 w-4 mr-1 text-purple-700" />
+                <div className="mt-3 p-3 bg-purple-50 rounded-md border border-purple-100 dark:bg-purple-900/20 dark:border-purple-900">
+                  <h4 className="font-medium text-sm text-purple-800 dark:text-purple-300 mb-1 flex items-center">
+                    <Brain className="h-4 w-4 mr-1 text-purple-700 dark:text-purple-400" />
                     <span>Volumetric Analysis:</span>
                   </h4>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-purple-700">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-purple-700 dark:text-purple-300">
                     {Object.entries(message.volumetrics).map(([key, value], index) => (
                       <div key={index} className="flex justify-between">
                         <span>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</span>
@@ -657,7 +674,7 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                     ))}
                   </div>
                   {message.findings && (
-                    <div className="mt-2 pt-2 border-t border-purple-200 text-xs text-purple-800">
+                    <div className="mt-2 pt-2 border-t border-purple-200 dark:border-purple-800 text-xs text-purple-800 dark:text-purple-300">
                       <span className="font-medium">Findings:</span> {message.findings}
                     </div>
                   )}
@@ -665,7 +682,7 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               )}
 
               {message.references && (
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                   <div className="font-medium mb-1 flex items-center">
                     <FileText className="h-4 w-4 mr-1" />
                     <span>References:</span>
@@ -748,15 +765,11 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
           <div className="flex items-center justify-between p-4 border-b bg-white dark:bg-gray-800 shadow-sm dark:border-gray-700">
             <div className="flex items-center space-x-2">
               <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-2 rounded-lg">
-                <Stethoscope className="h-5 w-5" />
+                {/* <Stethoscope className="h-5 w-5" /> */}
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                 BirthSense AI
               </h1>
-              <div className="hidden md:flex items-center ml-4 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                <Sparkles className="h-3 w-3 text-blue-600 dark:text-blue-400 mr-1" />
-                <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">YC Demo Version</span>
-              </div>
             </div>
             <div className="flex items-center">
               <button
@@ -947,38 +960,40 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
               <div className="flex-1 overflow-y-auto">
                 {activeTab === "patient" && (
                   <div className="p-4 space-y-4">
-                    <h3 className="font-bold text-lg text-gray-800 flex items-center">
-                      <User className="h-5 w-5 mr-2 text-blue-600" />
+                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 flex items-center">
+                      <User className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                       Patient Information
                     </h3>
-                    <div className="bg-white rounded-lg shadow p-4 space-y-3">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3 border border-gray-200 dark:border-gray-700">
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Name:</span>
-                        <span className="font-medium">{patientData.name}</span>
+                        <span className="text-gray-500 dark:text-gray-400">Name:</span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{patientData.name}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Age:</span>
-                        <span className="font-medium">{patientData.age}</span>
+                        <span className="text-gray-500 dark:text-gray-400">Age:</span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{patientData.age}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Gestational Age:</span>
-                        <span className="font-medium">{patientData.gestationalAge}</span>
+                        <span className="text-gray-500 dark:text-gray-400">Gestational Age:</span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">
+                          {patientData.gestationalAge}
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Last Scan:</span>
-                        <span className="font-medium">{patientData.lastScan}</span>
+                        <span className="text-gray-500 dark:text-gray-400">Last Scan:</span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{patientData.lastScan}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500 block mb-1">Risk Factors:</span>
-                        <ul className="list-disc pl-5 text-sm">
+                        <span className="text-gray-500 dark:text-gray-400 block mb-1">Risk Factors:</span>
+                        <ul className="list-disc pl-5 text-sm text-gray-800 dark:text-gray-200">
                           {patientData.riskFactors.map((risk, index) => (
                             <li key={index}>{risk}</li>
                           ))}
                         </ul>
                       </div>
                       <div>
-                        <span className="text-gray-500 block mb-1">Notes:</span>
-                        <p className="text-sm">{patientData.notes}</p>
+                        <span className="text-gray-500 dark:text-gray-400 block mb-1">Notes:</span>
+                        <p className="text-sm text-gray-800 dark:text-gray-200">{patientData.notes}</p>
                       </div>
                     </div>
                   </div>
@@ -986,19 +1001,21 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
 
                 {activeTab === "analytics" && (
                   <div className="p-4 space-y-4">
-                    <h3 className="font-bold text-lg text-gray-800 flex items-center">
-                      <BarChart2 className="h-5 w-5 mr-2 text-blue-600" />
+                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 flex items-center">
+                      <BarChart2 className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                       Analytics
                     </h3>
-                    <div className="bg-white rounded-lg shadow p-4 space-y-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-4 border border-gray-200 dark:border-gray-700">
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
-                          <div className="text-sm text-blue-700">Total Scans</div>
-                          <div className="text-2xl font-bold text-blue-800">{analyticsData.scansThisMonth}</div>
+                        <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-100 dark:border-blue-900">
+                          <div className="text-sm text-blue-700 dark:text-blue-300">Total Scans</div>
+                          <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">
+                            {analyticsData.scansThisMonth}
+                          </div>
                         </div>
-                        <div className="bg-green-50 p-3 rounded-lg border border-green-100">
-                          <div className="text-sm text-green-700">Standard Planes</div>
-                          <div className="text-2xl font-bold text-green-800">
+                        <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded-lg border border-green-100 dark:border-green-900">
+                          <div className="text-sm text-green-700 dark:text-green-300">Standard Planes</div>
+                          <div className="text-2xl font-bold text-green-800 dark:text-green-200">
                             {analyticsData.standardPlanes}
                             <span className="text-xs ml-1">
                               ({Math.round((analyticsData.standardPlanes / analyticsData.scansThisMonth) * 100)}%)
@@ -1008,7 +1025,7 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                       </div>
 
                       <div>
-                        <div className="text-gray-700 mb-2 font-medium">Quality Score Trend</div>
+                        <div className="text-gray-700 dark:text-gray-300 mb-2 font-medium">Quality Score Trend</div>
                         <div className="h-24 flex items-end space-x-1">
                           {analyticsData.weeklyTrend.map((score, index) => (
                             <div key={index} className="flex-1 bg-blue-500 rounded-t" style={{ height: `${score}%` }}>
@@ -1016,7 +1033,7 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                             </div>
                           ))}
                         </div>
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                           <span>Week 1</span>
                           <span>Week 2</span>
                           <span>Week 3</span>
@@ -1025,19 +1042,21 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                       </div>
 
                       <div>
-                        <div className="text-gray-700 mb-2 font-medium">Recent Scans</div>
+                        <div className="text-gray-700 dark:text-gray-300 mb-2 font-medium">Recent Scans</div>
                         <div className="space-y-2">
                           {analyticsData.recentScans.map((scan, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200"
+                              className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
                             >
-                              <div className="text-sm">{scan.date}</div>
+                              <div className="text-sm text-gray-800 dark:text-gray-200">{scan.date}</div>
                               <div className="flex items-center">
                                 <div
                                   className={`w-2 h-2 rounded-full ${scan.standard ? "bg-green-500" : "bg-red-500"} mr-2`}
                                 ></div>
-                                <div className="text-sm font-medium">{scan.quality}</div>
+                                <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                  {scan.quality}
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -1045,8 +1064,10 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                       </div>
 
                       <div className="pt-1">
-                        <span className="text-gray-700 block mb-1 font-medium">Most Common Issue:</span>
-                        <span className="text-sm bg-yellow-50 p-1 rounded border border-yellow-200 inline-block">
+                        <span className="text-gray-700 dark:text-gray-300 block mb-1 font-medium">
+                          Most Common Issue:
+                        </span>
+                        <span className="text-sm bg-yellow-50 dark:bg-yellow-900/30 p-1 rounded border border-yellow-200 dark:border-yellow-900 inline-block text-yellow-800 dark:text-yellow-300">
                           {analyticsData.mostCommonIssue}
                         </span>
                       </div>
@@ -1056,42 +1077,42 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
 
                 {activeTab === "help" && (
                   <div className="p-4 space-y-4">
-                    <h3 className="font-bold text-lg text-gray-800 flex items-center">
-                      <Info className="h-5 w-5 mr-2 text-blue-600" />
+                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 flex items-center">
+                      <Info className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                       Help & Documentation
                     </h3>
-                    <div className="bg-white rounded-lg shadow p-4 space-y-4">
-                      <h4 className="font-medium text-blue-700 flex items-center">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-4 border border-gray-200 dark:border-gray-700">
+                      <h4 className="font-medium text-blue-700 dark:text-blue-400 flex items-center">
                         <Wand2 className="h-4 w-4 mr-2" />
                         Available Commands
                       </h4>
                       <div className="space-y-3">
                         <div className="border-l-2 border-blue-500 pl-3">
-                          <div className="font-medium">/detect</div>
-                          <p className="text-sm text-gray-600">
+                          <div className="font-medium text-gray-800 dark:text-gray-200">/detect</div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             Identifies anatomical structures in ultrasound images and classifies the plane as standard
                             or non-standard.
                           </p>
                         </div>
                         <div className="border-l-2 border-blue-500 pl-3">
-                          <div className="font-medium">/segment</div>
-                          <p className="text-sm text-gray-600">
+                          <div className="font-medium text-gray-800 dark:text-gray-200">/segment</div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             Segments brain structures in MRI images and provides volumetric analysis.
                           </p>
                         </div>
                         <div className="border-l-2 border-blue-500 pl-3">
-                          <div className="font-medium">/ask [question]</div>
-                          <p className="text-sm text-gray-600">
+                          <div className="font-medium text-gray-800 dark:text-gray-200">/ask [question]</div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             Ask questions about the uploaded image to get detailed medical analysis.
                           </p>
                         </div>
                       </div>
 
-                      <h4 className="font-medium text-blue-700 mt-2 flex items-center">
+                      <h4 className="font-medium text-blue-700 dark:text-blue-400 mt-2 flex items-center">
                         <AlertCircle className="h-4 w-4 mr-2" />
                         Example Questions
                       </h4>
-                      <ul className="list-disc pl-5 text-sm space-y-1 text-gray-600">
+                      <ul className="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-400">
                         {[
                           "Is this a standard plane?",
                           "Am I missing something in this ultrasound?",
@@ -1103,12 +1124,12 @@ ${isStandard ? "✓ Standard plane" : "✗ Non-standard plane"} (Score: ${qualit
                         ))}
                       </ul>
 
-                      <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
-                        <h5 className="font-medium text-blue-700 flex items-center">
+                      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-900">
+                        <h5 className="font-medium text-blue-700 dark:text-blue-400 flex items-center">
                           <Zap className="h-4 w-4 mr-1" />
                           Pro Tip
                         </h5>
-                        <p className="text-sm text-blue-600 mt-1">
+                        <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
                           For the best results, ensure your ultrasound images are clear and properly oriented. The
                           system works best with standard planes that clearly show anatomical landmarks.
                         </p>
