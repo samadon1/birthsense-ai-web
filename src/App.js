@@ -76,7 +76,7 @@ function App() {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
 
-  const BACKEND_URL = "https://birthsense-fast-api-backend.onrender.com"; // Define backend URL constant
+  const BACKEND_URL = "https://9ba5-2c0f-2a80-7b5-a210-fd46-bd6d-af34-fe13.ngrok-free.app"; // Define backend URL constant
 
   // Sample patient data for demo - De-identified
   const patientData = {
@@ -454,11 +454,9 @@ function App() {
       // Revoke previous preview blob URL if it exists
       if (previewImage && previewImage.startsWith('blob:')) {
           URL.revokeObjectURL(previewImage);
-          setPreviewImage(null); // Clear preview state before fetching new one
-      } else if (previewImage) {
-         // If it wasn't a blob URL (e.g., previous base64), just clear it
-         setPreviewImage(null);
       }
+      // Always clear preview state when a new file is loaded
+      setPreviewImage(null);
 
       setCurrentImage(file); // Store the actual File object
       setApiError(null); // Clear errors on new upload
@@ -467,46 +465,18 @@ function App() {
       const isNifti = file.name.toLowerCase().endsWith(".nii") || file.name.toLowerCase().endsWith(".nii.gz");
       let newPreviewDataUrl = null;
 
-      // --- NIfTI Preview Handling ---
+      // --- NIfTI Preview Handling (SKIP) ---
       if (isNifti) {
-          setIsLoading(true); // Show loading indicator for preview fetch
-          setProcessingStage("Generating NIfTI preview...");
-          const formData = new FormData();
-          formData.append('file', file, file.name);
-          try {
-              const response = await fetch(`${BACKEND_URL}/preview_nifti/`, { // Use BACKEND_URL
-                  method: 'POST',
-                  body: formData,
-              });
-              if (!response.ok) {
-                  const errorData = await response.json().catch(() => ({ detail: response.statusText }));
-                  throw new Error(`API Error (${response.status}): ${errorData.detail || 'Failed to get preview'}`);
-              }
-              const result = await response.json();
-              if (result.preview_base64) {
-                  newPreviewDataUrl = `data:image/png;base64,${result.preview_base64}`;
-                  console.log("NIfTI preview received and converted to data URL.");
-              } else {
-                  throw new Error("No preview data received from backend.");
-              }
-        } catch (error) {
-              console.error("Error fetching NIfTI preview:", error);
-              setApiError(`Failed to generate preview: ${error.message}`);
-          setMessages((prev) => [
-            ...prev,
-                { role: "assistant", content: `Error generating preview for ${file.name}: ${error.message}`, isError: true, timestamp: new Date().toISOString()}
-              ]);
-          } finally {
-               setIsLoading(false); // Hide loading indicator
-               setProcessingStage("");
-          }
-    } else {
+          console.log("NIfTI file detected, skipping backend preview generation.");
+          // We set newPreviewDataUrl to null intentionally
+          newPreviewDataUrl = null;
+      } else {
           // --- Standard Image Preview Handling (use blob URL) ---
           newPreviewDataUrl = URL.createObjectURL(file);
       }
 
       // --- Update State and UI ---
-      setPreviewImage(newPreviewDataUrl); // Set the generated preview (blob or base64 data URL)
+      setPreviewImage(newPreviewDataUrl); // Set preview (null for NIfTI, blob URL for others)
       setInput(isNifti ? "/segment " : "/detect "); // Suggest command
       setShowCommandSuggestions(true);
       inputRef.current?.focus(); // Focus input
@@ -514,7 +484,7 @@ function App() {
        // Add system message confirming upload/selection
        const systemMessage = {
           role: "system",
-          content: `File "${file.name}" ${newPreviewDataUrl ? 'loaded' : 'selected (preview failed)'}. Use ${isNifti ? '/segment' : '/detect'} or type command.`,
+          content: `File "${file.name}" loaded. ${isNifti ? 'Preview skipped. ' : ''}Use ${isNifti ? '/segment' : '/detect'} or type command.`,
           timestamp: new Date().toISOString(),
        };
        setMessages((prev) => [...prev, systemMessage]);
@@ -576,10 +546,8 @@ function App() {
       // Clear previous preview
       if (previewImage && previewImage.startsWith('blob:')) {
           URL.revokeObjectURL(previewImage);
-          setPreviewImage(null);
-      } else if (previewImage) {
-          setPreviewImage(null);
       }
+      setPreviewImage(null); // Always clear preview state
 
       let newPreviewDataUrl = null;
       let loadedFile = null;
@@ -597,34 +565,17 @@ function App() {
           loadedFile = new File([blob], filename, { type: fileType });
           setCurrentImage(loadedFile); // Set the file object
 
-          // --- Generate Preview ---
-    if (isMri) {
-              // Fetch NIfTI preview from backend
-              setProcessingStage("Generating NIfTI preview...");
-              const formData = new FormData();
-              formData.append('file', loadedFile, loadedFile.name);
-              const previewResponse = await fetch(`${BACKEND_URL}/preview_nifti/`, { // Use BACKEND_URL
-                  method: 'POST',
-                  body: formData,
-              });
-              if (!previewResponse.ok) {
-                  const errorData = await previewResponse.json().catch(() => ({ detail: previewResponse.statusText }));
-                  throw new Error(`API Error (${previewResponse.status}): ${errorData.detail || 'Failed to get preview'}`);
-              }
-              const result = await previewResponse.json();
-              if (result.preview_base64) {
-                  newPreviewDataUrl = `data:image/png;base64,${result.preview_base64}`;
-                  console.log("Demo NIfTI preview received and converted to data URL.");
-    } else {
-                  throw new Error("No preview data received from backend for demo NIfTI.");
-              }
+          // --- Generate Preview (SKIP FOR MRI) ---
+          if (isMri) {
+              console.log("Demo MRI selected, skipping backend preview generation.");
+              newPreviewDataUrl = null; // No preview for demo MRI
           } else {
               // Create blob URL for standard images
               newPreviewDataUrl = URL.createObjectURL(blob);
           }
 
           // --- Update State and UI ---
-          setPreviewImage(newPreviewDataUrl); // Set generated preview
+          setPreviewImage(newPreviewDataUrl); // Set preview (null for MRI, blob URL for others)
           setInput(isMri ? "/segment " : "/detect ");
           setShowCommandSuggestions(true);
           inputRef.current?.focus();
@@ -632,13 +583,13 @@ function App() {
           // Add system message
           const systemMessage = {
               role: "system",
-              content: `Demo file "${loadedFile.name}" ${newPreviewDataUrl ? 'loaded' : 'selected (preview failed)'}. Use ${isMri ? '/segment' : '/detect'} or type command.`,
+              content: `Demo file "${loadedFile.name}" loaded. ${isMri ? 'Preview skipped. ' : ''}Use ${isMri ? '/segment' : '/detect'} or type command.`,
               timestamp: new Date().toISOString(),
           };
           setMessages((prev) => [...prev, systemMessage]);
 
       } catch (error) {
-          console.error("Error loading or previewing demo image:", error);
+          console.error("Error loading demo image:", error);
           setApiError(`Failed to load demo image: ${error.message}`);
           setMessages((prev) => [
               ...prev,
